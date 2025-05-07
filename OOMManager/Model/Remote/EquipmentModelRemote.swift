@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct EquipmentModel: Codable {
+struct EquipmentModelRemote: Codable {
     var idEquipment: Int?
     var name: String?
     var serieNumber: String?

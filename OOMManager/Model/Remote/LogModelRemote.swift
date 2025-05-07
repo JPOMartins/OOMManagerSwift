@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct LogModel: Codable {
+struct LogModelRemote: Codable {
     var equipmentsIdEquipment: Int?
     var userId: Int?
     var completedDate: String?
