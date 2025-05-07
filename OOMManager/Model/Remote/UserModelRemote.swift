@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct UserModelRemoteItem: Codable {
+struct UserModelRemote: Codable {
     var email: String
     var idUser: Int
     var name: String

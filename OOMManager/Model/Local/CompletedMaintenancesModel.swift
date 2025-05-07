@@ -13,7 +13,6 @@ class CompletedMaintenanceModel {
     var startedDate: String
     var observation: String
 
-    // Relacionamentos simulados por ID (simples)
     var idMaintenance: Int
     var idUser: Int
 

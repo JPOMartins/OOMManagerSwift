@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct CompletedMaintenances: Codable {
+struct CompletedMaintenancesRemote: Codable {
     var usersIdUser: Int?
     var maintenancesIdMaintenance: Int?
     var observations: String?
