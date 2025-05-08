@@ -17,7 +17,7 @@ class LogRepository {
     }
 
     func fetchAndStoreLogs(completion: @escaping (Error?) -> Void) {
-        apiService.fetchData(from: "https://oomdata.arditi.pt/oom/logs") { (remoteLogs: [LogModelRemote]?, error) in
+        apiService.fetchData(from: "https://oomdata.arditi.pt/oom/log") { (remoteLogs: [LogModelRemote]?, error) in
             if let error = error {
                 completion(error)
                 return

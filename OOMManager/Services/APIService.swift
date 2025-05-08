@@ -7,6 +7,12 @@
 import Foundation
 
 class APIService {
+    
+    private let authManager: AuthManager
+
+     init(authManager: AuthManager = AuthManager()) {
+         self.authManager = authManager
+     }
 
     func fetchData<T: Decodable>(from urlString: String, completion: @escaping (T?, Error?) -> Void) {
         guard let url = URL(string: urlString) else {
@@ -43,4 +49,25 @@ class APIService {
         task.resume()
     }
 }
+
+extension APIService {
+    func fetchImageData(from urlString: String, completion: @escaping (Data?, Error?) -> Void) {
+        guard let url = URL(string: urlString) else {
+            completion(nil, NSError(domain: "Invalid URL", code: 400))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+
+        if let token = AuthManager.shared.getToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+
+        URLSession.shared.dataTask(with: request) { data, _, error in
+            completion(data, error)
+        }.resume()
+    }
+}
+
 

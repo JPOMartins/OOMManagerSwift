@@ -12,7 +12,20 @@ import SwiftData
 struct OOMManagerApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            AppVersionModel.self,
+            CompletedMaintenanceModel.self,
+            UserModel.self,
+            CompletedMaintenanceActivityModel.self,
+            CompletedTaskModel.self,
+            EquipmentModel.self,
+            LogModel.self,
+            LogActivityModel.self,
+            TaskModel.self,
+            PostCompletedTaskModel.self,
+            PostCompletedMaintenanceModel.self,
+            PostLogModel.self,
+            TaskActivityModel.self,
+            MaintenancesModel.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -23,10 +36,41 @@ struct OOMManagerApp: App {
         }
     }()
 
+    @StateObject private var authManager = AuthManager()
+    
+    private var apiService = APIService()
+    private var equipmentRepository: EquipmentRepository
+    private var logRepository: LogRepository
+    
+    init() {
+        let context = sharedModelContainer.mainContext
+        self.equipmentRepository = EquipmentRepository(apiService: apiService, context: context)
+        self.logRepository = LogRepository(apiService: apiService, context: context)
+    }
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if authManager.isAuthenticated {
+                NavigationSplitView {
+                    List {
+                        NavigationLink("Equipment") {
+                            EquipmentView(repository: equipmentRepository)
+                        }
+
+                        NavigationLink("Logs") {
+                            CompletedLogsView(repository: logRepository)
+                        }
+                    }
+                        .navigationTitle("OOM Manager")
+                    } detail: {
+                        Text("Select an option")
+                    }
+                    .environmentObject(authManager)
+                } else {
+                    LoginView()
+                        .environmentObject(authManager)
+                }
+            }
+            .modelContainer(sharedModelContainer)
         }
-        .modelContainer(sharedModelContainer)
-    }
 }

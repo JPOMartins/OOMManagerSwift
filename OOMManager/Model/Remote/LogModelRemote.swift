@@ -16,14 +16,13 @@ struct LogModelRemote: Codable {
     var title: String?
     var idLog: Int?
 
-    // Decodificador para mapear o JSON para o modelo Swift com nomes personalizados
     enum CodingKeys: String, CodingKey {
         case equipmentsIdEquipment = "Equipments_idEquipment"
         case userId = "users_idUser"
         case completedDate = "CompletedDate"
         case startedDate = "startedDate"
-        case observations
-        case title
-        case idLog
+        case observations = "observations"
+        case title = "title"
+        case idLog = "idLog"
     }
 }
