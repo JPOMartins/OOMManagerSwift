@@ -16,15 +16,14 @@ struct CompletedLogsView : View {
     let repository: LogRepository
     
     var body: some View {
-        NavigationView {
-            VStack {
-                if let errorMessage = errorMessage {
-                    Text("Error: \(errorMessage)")
-                        .foregroundColor(.red)
-                }
-                LogsListView(logs: logs)
+        VStack {
+            if let errorMessage = errorMessage {
+                Text("Error: \(errorMessage)")
+                    .foregroundColor(.red)
             }
-        }.navigationTitle("Logs")
+            LogsListView(logs: logs)
+        }
+        .navigationTitle("Logs")
         .onAppear {
             repository.fetchAndStoreLogs { error in
                 if let error = error {
@@ -32,8 +31,8 @@ struct CompletedLogsView : View {
                 }
             }
         }
-        
     }
+        
 }
 
 struct LogsListView : View {

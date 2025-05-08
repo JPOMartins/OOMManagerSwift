@@ -47,8 +47,6 @@ struct LoginView: View {
                 authManager.loginUser(username: username, password: password) { error in
                     if let error = error {
                         self.errorMessage = error.localizedDescription
-                    } else {
-                        // Proceed to next screen or update root view
                     }
                 }
             }) {

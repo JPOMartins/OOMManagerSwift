@@ -37,40 +37,36 @@ struct OOMManagerApp: App {
     }()
 
     @StateObject private var authManager = AuthManager()
-    
+
     private var apiService = APIService()
+    
     private var equipmentRepository: EquipmentRepository
     private var logRepository: LogRepository
-    
+    private var completedMaintenanceRepository : CompletedMaintenanceRepository
+
     init() {
         let context = sharedModelContainer.mainContext
         self.equipmentRepository = EquipmentRepository(apiService: apiService, context: context)
         self.logRepository = LogRepository(apiService: apiService, context: context)
+        self.completedMaintenanceRepository = CompletedMaintenanceRepository(apiService: apiService, context: context)
     }
-    
+
     var body: some Scene {
         WindowGroup {
             if authManager.isAuthenticated {
-                NavigationSplitView {
-                    List {
-                        NavigationLink("Equipment") {
-                            EquipmentView(repository: equipmentRepository)
-                        }
-
-                        NavigationLink("Logs") {
-                            CompletedLogsView(repository: logRepository)
-                        }
-                    }
-                        .navigationTitle("OOM Manager")
-                    } detail: {
-                        Text("Select an option")
-                    }
-                    .environmentObject(authManager)
-                } else {
-                    LoginView()
-                        .environmentObject(authManager)
-                }
+                MainSidebarView(
+                    equipmentRepository: equipmentRepository,
+                    logRepository: logRepository,
+                    completedMaintenaceRepository: completedMaintenanceRepository
+                )
+                .environmentObject(authManager)
+            } else {
+                LoginView()
+                .environmentObject(authManager)
             }
-            .modelContainer(sharedModelContainer)
         }
+        .modelContainer(sharedModelContainer)
+    }
 }
+
+

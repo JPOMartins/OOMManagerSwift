@@ -13,9 +13,8 @@ struct EquipmentView: View {
     @State private var errorMessage: String?
 
     let repository: EquipmentRepository
-
+    
     var body: some View {
-        NavigationView {
             VStack {
                 if let errorMessage = errorMessage {
                     Text("Error: \(errorMessage)")
@@ -32,7 +31,7 @@ struct EquipmentView: View {
                     }
                 }
             }
-        }
+
     }
 
     private func fetchImage(id: Int, completion: @escaping (UIImage?) -> Void) {
@@ -59,7 +58,7 @@ struct EquipmentRow: View {
     @State private var image: UIImage?
 
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .center, spacing: 6) {
 
             if let image = image {
                 Image(uiImage: image)
@@ -85,6 +84,7 @@ struct EquipmentRow: View {
                     .font(.caption)
             }
         }
+        .padding()
         .onAppear {
             fetchImage(equipment.idEquipment) { fetchedImage in
                 self.image = fetchedImage

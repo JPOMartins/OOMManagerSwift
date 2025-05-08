@@ -22,6 +22,6 @@ struct CompletedMaintenancesRemote: Codable {
         case observations
         case idCompletedMaintenance = "idCompletedMaintenance"
         case startedDate
-        case completedDate
+        case completedDate = "CompletedDate"
     }
 }
