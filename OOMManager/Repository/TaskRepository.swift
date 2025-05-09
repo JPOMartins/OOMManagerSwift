@@ -17,7 +17,7 @@ class TaskRepository {
     }
 
     func fetchAndStoreTasks(completion: @escaping (Error?) -> Void) {
-        apiService.fetchData(from: "https://oomdata.arditi.pt/oom/tasks") { (remoteTasks: [TaskModelRemote]?, error) in
+        apiService.fetchData(from: "https://oomdata.arditi.pt/oom/task") { (remoteTasks: [TaskModelRemote]?, error) in
             if let error = error {
                 completion(error)
                 return

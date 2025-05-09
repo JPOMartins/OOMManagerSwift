@@ -14,10 +14,8 @@ struct HomeView: View {
     @Query private var logActivityModel : [LogActivityModel]
 
     var body: some View {
-        NavigationView {
-            HomeScreen(completedMaintenacesActivityModel: completedMaintenanceActivityModel, logActivityModel: logActivityModel)
-        }.padding()
-        .navigationTitle("Atividades em Andamento")
+        HomeScreen(completedMaintenacesActivityModel: completedMaintenanceActivityModel, logActivityModel: logActivityModel)
+            .navigationTitle("Atividades em Andamento")
     }
 }
 
@@ -28,7 +26,11 @@ struct HomeScreen: View {
     var body: some View {
         VStack {
             ScrollView {
-                Section(header: Text("Logs - \(logActivityModel.count)")) {
+                
+                Section(header: HStack{
+                    Text("Logs - \(logActivityModel.count)")
+                    Spacer()
+                }) {
                     ForEach(logActivityModel) { log in
                         LogCard(log: log)
                     }
@@ -36,7 +38,11 @@ struct HomeScreen: View {
                     
                 Spacer()
                     
-                Section(header: Text("Maintenances - \(completedMaintenacesActivityModel.count)")) {
+                Section(header: HStack {
+                    Text("Maintenances - \(completedMaintenacesActivityModel.count)")
+                    Spacer()
+                }
+                ) {
                     ForEach(completedMaintenacesActivityModel) { maintenance in
                         MaintenanceCard(maintenance: maintenance)
                     }

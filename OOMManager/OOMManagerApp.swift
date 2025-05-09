@@ -43,12 +43,21 @@ struct OOMManagerApp: App {
     private var equipmentRepository: EquipmentRepository
     private var logRepository: LogRepository
     private var completedMaintenanceRepository : CompletedMaintenanceRepository
+    private var maintenanceRepository : MaintenanceRepository
+    private var completedTaskRepository : CompletedTaskRepository
+    private var taskRepository : TaskRepository
+    private var userRepository : UserRepository
 
     init() {
         let context = sharedModelContainer.mainContext
         self.equipmentRepository = EquipmentRepository(apiService: apiService, context: context)
         self.logRepository = LogRepository(apiService: apiService, context: context)
         self.completedMaintenanceRepository = CompletedMaintenanceRepository(apiService: apiService, context: context)
+        self.maintenanceRepository = MaintenanceRepository(apiService: apiService, context: context)
+        self.completedTaskRepository = CompletedTaskRepository(apiService: apiService, context: context)
+        self.taskRepository = TaskRepository(apiService: apiService, context: context)
+        self.userRepository = UserRepository(apiService: apiService, context: context)
+        
     }
 
     var body: some Scene {
@@ -57,7 +66,9 @@ struct OOMManagerApp: App {
                 MainSidebarView(
                     equipmentRepository: equipmentRepository,
                     logRepository: logRepository,
-                    completedMaintenaceRepository: completedMaintenanceRepository
+                    completedMaintenaceRepository: completedMaintenanceRepository,
+                    maintenanceRepository: maintenanceRepository,
+                    taskRepository: taskRepository,
                 )
                 .environmentObject(authManager)
             } else {

@@ -13,6 +13,7 @@ struct CompletedMaintenancesView: View {
     @State private var errorMessage : String?
     
     let repository : CompletedMaintenanceRepository
+    let repositoryMaintenance : MaintenanceRepository
     
     var body: some View {
         VStack {
@@ -24,6 +25,12 @@ struct CompletedMaintenancesView: View {
         }
         .navigationTitle("Maintenances")
         .onAppear {
+            repositoryMaintenance.fetchAndStoreMaintenances { error in
+                if let error = error {
+                    errorMessage = error.localizedDescription
+                }
+            }
+        
             repository.fetchAndStoreCompletedMaintenance { error in
                 if let error = error {
                     errorMessage = error.localizedDescription
@@ -36,25 +43,39 @@ struct CompletedMaintenancesView: View {
 
 struct CompletedMaintenancesListView : View {
     let completedMaintenances : [CompletedMaintenanceModel]
+    @Query private var maintenances : [MaintenancesModel]
+    @Query private var equipments : [EquipmentModel]
     
     var body: some View {
         List(completedMaintenances) { completedMaintenance in
-            CompletedMaintenanceRow(completedMaintenace: completedMaintenance)
+            let maintenance = maintenances.first {$0.idMaintenance == completedMaintenance.idMaintenance}
+            let equipment = equipments.first {$0.idEquipment == maintenance?.idEquipment}
+            CompletedMaintenanceRow(completedMaintenace: completedMaintenance, maintenance: maintenance, equipment: equipment)
         }
     }
 }
 
 struct CompletedMaintenanceRow : View {
     let completedMaintenace : CompletedMaintenanceModel
+    let maintenance : MaintenancesModel?
+    let equipment : EquipmentModel?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Image(systemName: "doc.text")
                     .foregroundColor(.blue)
-                Text(String(completedMaintenace.idMaintenance))
+                Text(String(maintenance?.title ?? "Unknow Maintenance"))
                     .font(.headline)
                     .foregroundColor(.primary)
+            }
+            
+            HStack {
+                Image(systemName: "wrench.fill")
+                    .foregroundColor(.gray)
+                Text(equipment?.name ?? "Unknown Equipment")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
             }
 
             HStack {

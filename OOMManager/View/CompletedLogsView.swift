@@ -37,25 +37,36 @@ struct CompletedLogsView : View {
 
 struct LogsListView : View {
     let logs: [LogModel]
+    @Query private var equipmentList: [EquipmentModel]
     
     var body: some View {
         List(logs) { log in
-           LogRow(log: log)
+            let equipment = equipmentList.first { $0.idEquipment == log.idEquipment }
+            LogRow(log: log, equipment: equipment)
         }
     }
 }
 
 struct LogRow: View {
     let log: LogModel
-
+    let equipment: EquipmentModel?
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
+    
             HStack {
                 Image(systemName: "doc.text")
                     .foregroundColor(.blue)
                 Text(log.title)
                     .font(.headline)
                     .foregroundColor(.primary)
+            }
+            
+            HStack {
+                Image(systemName: "wrench.fill")
+                    .foregroundColor(.gray)
+                Text(equipment?.name ?? "Unknown Equipment")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
             }
 
             HStack {

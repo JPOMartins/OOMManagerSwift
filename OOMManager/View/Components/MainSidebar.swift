@@ -12,6 +12,7 @@ enum SidebarItem: Hashable {
     case logs
     case completedMaintenace
     case Home
+    case consult
 }
 
 struct MainSidebarView: View {
@@ -20,6 +21,9 @@ struct MainSidebarView: View {
     let equipmentRepository: EquipmentRepository
     let logRepository: LogRepository
     let completedMaintenaceRepository: CompletedMaintenanceRepository
+    let maintenanceRepository: MaintenanceRepository
+    let taskRepository: TaskRepository
+    
     @State private var columnVisibility: NavigationSplitViewVisibility = .automatic
 
 
@@ -28,18 +32,29 @@ struct MainSidebarView: View {
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             List(selection: $selectedItem) {
-                NavigationLink(value: SidebarItem.Home) {
-                    Label("Home", systemImage: "house")
+                Section(header: Text("Menu")) {
+                    NavigationLink(value: SidebarItem.Home) {
+                        Label("Home", systemImage: "house")
+                    }
                 }
-                NavigationLink(value: SidebarItem.equipment) {
-                    Label("Equipment", systemImage: "desktopcomputer")
+                Section(header: Text("Equipments")) {
+                    NavigationLink(value: SidebarItem.equipment) {
+                        Label("Equipment", systemImage: "desktopcomputer")
+                    }
                 }
-                NavigationLink(value: SidebarItem.logs) {
-                    Label("Logs", systemImage: "doc.plaintext")
+                Section(header: Text("Histórico")) {
+                    NavigationLink(value: SidebarItem.logs) {
+                        Label("Logs", systemImage: "doc.plaintext")
+                    }
+                    NavigationLink(value: SidebarItem.completedMaintenace) {
+                        Label("Maintenance", systemImage: "wrench")
+                    }
                 }
-                NavigationLink(value: SidebarItem.completedMaintenace) {
-                    Label("Maintenance", systemImage: "wrench")
-                    
+                
+                Section(header: Text("Dados")) {
+                    NavigationLink(value: SidebarItem.consult) {
+                        Label("Consult", systemImage: "book.pages")
+                    }
                 }
             }
             .navigationTitle("OOM Manager")
@@ -52,7 +67,9 @@ struct MainSidebarView: View {
             case .logs:
                 CompletedLogsView(repository: logRepository)
             case .completedMaintenace:
-                CompletedMaintenancesView(repository: completedMaintenaceRepository)
+                CompletedMaintenancesView(repository: completedMaintenaceRepository, repositoryMaintenance: maintenanceRepository)
+            case .consult:
+                ConsultView(taskRepository: taskRepository)
                 
             case .none:
                 Text("Select a section")
