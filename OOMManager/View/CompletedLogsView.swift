@@ -14,6 +14,7 @@ struct CompletedLogsView : View {
     @Query private var equipmentList: [EquipmentModel]
     @State private var errorMessage : String?
     @Query private var users: [UserModel]
+    
         
     @State private var selectedLog: LogModel? = nil
     

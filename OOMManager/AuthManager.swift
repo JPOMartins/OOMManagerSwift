@@ -12,6 +12,7 @@ class AuthManager: ObservableObject {
     static let shared = AuthManager()
     @AppStorage("authToken") var authToken: String = ""
     @Published var isAuthenticated: Bool = false
+    @Published var currentUser: UserModel?
     
     func getToken() -> String? {
         return authToken.isEmpty ? nil : authToken
@@ -20,6 +21,10 @@ class AuthManager: ObservableObject {
     struct LoginResponse: Decodable {
         let access_token: String
         let token_type: String
+    }
+    
+    func setCurrentUser(_ user: UserModel) {
+        self.currentUser = user
     }
 
     func loginUser(username: String, password: String, completion: @escaping (Error?) -> Void) {

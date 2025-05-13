@@ -49,6 +49,18 @@ class CompletedTaskRepository {
             }
         }
     }
+    
+    func postCompletedTask(dto: CompletedTaskActivityDTO, completion: @escaping (Bool, Error?) -> Void) {
+        let url = "https://oomdata.arditi.pt/oom/completedTasks"
+        
+        apiService.postData(to: url, body: dto) {(response: CompletedTaskRemote?, error) in
+            if let error = error {
+                completion(false, error)
+                return
+            }
+            completion(true, nil)
+        }
+    }
 }
 
 

@@ -45,6 +45,28 @@ struct MainSidebarView: View {
         
         NavigationSplitView(columnVisibility: $columnVisibility) {
             List(selection: $selectedItem) {
+                Section {
+                    HStack(alignment: .center, spacing: 12) {
+                        Image(systemName: "person.crop.circle")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .foregroundColor(.oomLogoBlue)
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(currentUserLogged?.name ?? "Nome do utilizador")
+                                .font(.headline)
+                            Text(currentUserLogged?.email ?? "Email não disponível")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    .padding(8)
+                    .cornerRadius(8)
+                }
+
+                
+                
+                
                 Section(header: Text("Menu")) {
                     NavigationLink(value: SidebarItem.Home) {
                         Label("Home", systemImage: "house")
@@ -74,7 +96,7 @@ struct MainSidebarView: View {
         } detail: {
             switch selectedItem {
             case .Home:
-                HomeView()
+                HomeView(logRepository: logRepository)
             case .equipment:
                 EquipmentView(repository: equipmentRepository)
             case .logs:
@@ -95,11 +117,14 @@ struct MainSidebarView: View {
                 } else if let token = authManager.getToken(),
                           let userId = extractUserIdFromToken(token) {
                     
-                    // Find the logged-in user from the fetched users
-                    currentUserLogged = users.first(where: { $0.idUser == userId })
+                    if let foundUser = users.first(where: { $0.idUser == userId }) {
+                        currentUserLogged = foundUser
+                        authManager.setCurrentUser(foundUser) 
+                    }
                 }
             }
         }
+
 
     }
 }
@@ -114,7 +139,6 @@ func extractUserIdFromToken(_ token: String) -> Int? {
     var payload = payloadPart.replacingOccurrences(of: "-", with: "+")
                               .replacingOccurrences(of: "_", with: "/")
 
-    // Pad the base64 string if needed
     while payload.count % 4 != 0 {
         payload += "="
     }

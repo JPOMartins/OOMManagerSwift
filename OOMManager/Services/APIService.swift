@@ -9,35 +9,35 @@ import Foundation
 class APIService {
     
     private let authManager: AuthManager
-
-     init(authManager: AuthManager = AuthManager()) {
-         self.authManager = authManager
-     }
-
+    
+    init(authManager: AuthManager = AuthManager()) {
+        self.authManager = authManager
+    }
+    
     func fetchData<T: Decodable>(from urlString: String, completion: @escaping (T?, Error?) -> Void) {
         guard let url = URL(string: urlString) else {
             completion(nil, NSError(domain: "Invalid URL", code: 400, userInfo: nil))
             return
         }
-
+        
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-
+        
         if let token = AuthManager.shared.getToken() {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
-
+        
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 completion(nil, error)
                 return
             }
-
+            
             guard let data = data else {
                 completion(nil, NSError(domain: "No Data", code: 404, userInfo: nil))
                 return
             }
-
+            
             do {
                 let decodedData = try JSONDecoder().decode(T.self, from: data)
                 completion(decodedData, nil)
@@ -45,10 +45,57 @@ class APIService {
                 completion(nil, error)
             }
         }
-
+        
         task.resume()
     }
+    
+    func postData<T: Decodable, U: Encodable>(
+        to urlString: String,
+        body: U,
+        completion: @escaping (T?, Error?) -> Void
+    ) {
+        guard let url = URL(string: urlString) else {
+            completion(nil, NSError(domain: "Invalid URL", code: 400, userInfo: nil))
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if let token = AuthManager.shared.getToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        do {
+            let jsonData = try JSONEncoder().encode(body)
+            request.httpBody = jsonData
+        } catch {
+            completion(nil, error)
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(nil, error)
+                return
+            }
+            
+            guard let data = data else {
+                completion(nil, NSError(domain: "No Data", code: 404, userInfo: nil))
+                return
+            }
+            
+            do {
+                let decoded = try JSONDecoder().decode(T.self, from: data)
+                completion(decoded, nil)
+            } catch {
+                completion(nil, error)
+            }
+        }.resume()
+    }
 }
+
 
 extension APIService {
     func fetchImageData(from urlString: String, completion: @escaping (Data?, Error?) -> Void) {
