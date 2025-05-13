@@ -15,8 +15,12 @@ struct CompletedLogDetailView: View {
     let equipmentRepository: EquipmentRepository
 
     var body: some View {
-        CompletedLogBodyView(log: log, equipment: equipment, user: user, fetchImage: fetchImage)
-            .padding()
+        VStack {
+            ScrollView {
+                CompletedLogBodyView(log: log, equipment: equipment, user: user, fetchImage: fetchImage)
+                    .padding()
+            }
+        }
     }
     private func fetchImage(id: Int, completion: @escaping (UIImage?) -> Void) {
         equipmentRepository.fetchEquipmentImage(for: id, completion: completion)
@@ -43,7 +47,7 @@ struct CompletedLogBodyView: View {
             return "N/A"
         }
 
-        let components = Calendar.current.dateComponents([.day, .hour, .minute], from: startDate, to: endDate)
+        let components = Calendar.current.dateComponents([.day, .hour, .minute, .second], from: startDate, to: endDate)
 
         var parts: [String] = []
         if let days = components.day, days > 0 {
@@ -54,6 +58,10 @@ struct CompletedLogBodyView: View {
         }
         if let minutes = components.minute, minutes > 0 {
             parts.append("\(minutes) min(s)")
+        }
+        
+        if let seconds = components.second, seconds > 0 {
+            parts.append("\(seconds) sec(s)")
         }
 
         return parts.joined(separator: ", ")
@@ -75,6 +83,7 @@ struct CompletedLogBodyView: View {
                 if let image = image {
                     Image(uiImage: image)
                         .resizable()
+                        .aspectRatio(contentMode: .fit)
                         .cornerRadius(8)
                 } else {
                     Rectangle()
@@ -166,7 +175,7 @@ struct CompletedLogBodyView: View {
                             .font(.title3)
                         Spacer()
                     }
-                    .padding(.vertical, 5)
+                    .padding(.top, 5)
                     
                     HStack {
                         Text(log.observations)
@@ -181,6 +190,7 @@ struct CompletedLogBodyView: View {
                 }
             }
         }
+        .navigationTitle(log.title)
     }
 }
 
@@ -192,7 +202,7 @@ struct CompletedLogBodyView: View {
             idEquipment: 101,
             userID: 501,
             observations: "All systems functional, no issues found.",
-            startedDate: "2025-05-01T08:30:00",
+            startedDate: "2025-05-01T08:30:23",
             completedDate: "2025-05-02T14:15:00"
         ),
         equipment: EquipmentModel(

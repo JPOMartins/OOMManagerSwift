@@ -11,31 +11,54 @@ import SwiftData
 struct CompletedMaintenancesView: View {
     @Query private var completedMaintenaces : [CompletedMaintenanceModel]
     @State private var errorMessage : String?
+    @Query private var users: [UserModel]
+    @Query private var equipmentList: [EquipmentModel]
+    @Query private var maintenances: [MaintenancesModel]
     
     let repository : CompletedMaintenanceRepository
     let repositoryMaintenance : MaintenanceRepository
+    let equipmentRepository: EquipmentRepository
+    let completedTaskRepository: CompletedTaskRepository
+    
+    @State private var selectedMaintenance : CompletedMaintenanceModel? = nil
     
     var body: some View {
-        VStack {
-            if let errorMessage = errorMessage {
-                Text("Error: \(errorMessage)")
-                    .foregroundColor(.red)
-            }
-            CompletedMaintenancesListView(completedMaintenances: completedMaintenaces)
-        }
-        .navigationTitle("Maintenances")
-        .onAppear {
-            repositoryMaintenance.fetchAndStoreMaintenances { error in
-                if let error = error {
-                    errorMessage = error.localizedDescription
+        NavigationStack {
+            VStack {
+                if let errorMessage = errorMessage {
+                    Text("Error: \(errorMessage)")
+                        .foregroundColor(.red)
+                }
+                CompletedMaintenancesListView(completedMaintenances: completedMaintenaces) { completedMaintenance in
+                    
+                    selectedMaintenance = completedMaintenance
+                    
                 }
             }
-        
-            repository.fetchAndStoreCompletedMaintenance { error in
-                if let error = error {
-                    errorMessage = error.localizedDescription
+            .navigationTitle("Maintenances")
+            .onAppear {
+                repositoryMaintenance.fetchAndStoreMaintenances { error in
+                    if let error = error {
+                        errorMessage = error.localizedDescription
+                    }
                 }
                 
+                repository.fetchAndStoreCompletedMaintenance { error in
+                    if let error = error {
+                        errorMessage = error.localizedDescription
+                    }
+                    
+                }
+            }
+            .navigationDestination(item: $selectedMaintenance) { completedMaintenance in
+
+                let user = users.first {$0.idUser == completedMaintenance.idUser}
+                let maintenance = maintenances.first {$0.idMaintenance == completedMaintenance.idMaintenance}
+                let equipment = equipmentList.first {$0.idEquipment == maintenance?.idEquipment}
+                
+            
+                
+                CompletedMaintenanceDetailView(completedMaintenanance: completedMaintenance, maintenance: maintenance!, equipment: equipment, userModel: user!, equipmentRepository: equipmentRepository, completedTasksRepository: completedTaskRepository)
             }
         }
     }
@@ -45,12 +68,16 @@ struct CompletedMaintenancesListView : View {
     let completedMaintenances : [CompletedMaintenanceModel]
     @Query private var maintenances : [MaintenancesModel]
     @Query private var equipments : [EquipmentModel]
+    let onLogTap: (CompletedMaintenanceModel) -> Void
     
     var body: some View {
         List(completedMaintenances) { completedMaintenance in
             let maintenance = maintenances.first {$0.idMaintenance == completedMaintenance.idMaintenance}
             let equipment = equipments.first {$0.idEquipment == maintenance?.idEquipment}
             CompletedMaintenanceRow(completedMaintenace: completedMaintenance, maintenance: maintenance, equipment: equipment)
+                .onTapGesture {
+                    onLogTap(completedMaintenance)
+                }
         }
     }
 }
@@ -128,7 +155,7 @@ struct CompletedMaintenanceRow : View {
             idMaintenance: 103,
             idUser: 12
         )
-    ])
+    ], onLogTap: {_ in })
 }
 
 

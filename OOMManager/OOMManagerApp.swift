@@ -68,7 +68,7 @@ struct OOMManagerApp: App {
                     logRepository: logRepository,
                     completedMaintenaceRepository: completedMaintenanceRepository,
                     maintenanceRepository: maintenanceRepository,
-                    taskRepository: taskRepository,
+                    taskRepository: taskRepository, userRepository: userRepository, completedTaskRepository: completedTaskRepository,
                 )
                 .environmentObject(authManager)
             } else {
