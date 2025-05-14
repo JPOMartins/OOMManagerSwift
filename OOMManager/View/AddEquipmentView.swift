@@ -42,7 +42,7 @@ struct AddEquipmentBody: View {
                 TextField("Modelo*", text: $model)
                 TextField("Número de serie*", text: $nrSerie)
                 TextField("Número no library.arditi.pt*", text: $nrLibrary)
-                TextField("Observações*", text: $observations)
+                TextField("Observações", text: $observations)
             }
             .autocapitalization(.none)
             .padding(.horizontal)
@@ -65,6 +65,7 @@ struct AddEquipmentBody: View {
                     useCamera = true
                     showImagePicker = true
                 }
+                Spacer()
 
                 Button("🖼️ Escolher da Galeria") {
                     useCamera = false

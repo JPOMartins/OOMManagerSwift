@@ -98,7 +98,7 @@ class EquipmentRepository {
         addField(name: "name", value: name)
         addField(name: "brand", value: brand)
         addField(name: "model", value: model)
-        addField(name: "serieNumber", value: serialNumber)
+        addField(name: "serie_number", value: serialNumber)
         addField(name: "id", value: libraryNumber)
         addField(name: "observations", value: observations)
 
@@ -113,8 +113,9 @@ class EquipmentRepository {
         data.append("--\(boundary)--\r\n".data(using: .utf8)!)
         request.httpBody = data
 
-        URLSession.shared.dataTask(with: request) { _, response, error in
+        URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
+                print(error)
                 completion(false, error)
                 return
             }
@@ -127,6 +128,15 @@ class EquipmentRepository {
             if (200...299).contains(httpResponse.statusCode) {
                 completion(true, nil)
             } else {
+                var errorMessage = "API error \(httpResponse.statusCode)"
+
+                    if let data = data,
+                       let errorResponse = String(data: data, encoding: .utf8) {
+                        print("🔴 Server response body:")
+                        print(errorResponse)
+                        errorMessage += "\n\(errorResponse)"
+                    }
+                
                 completion(false, NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "API error \(httpResponse.statusCode)"]))
             }
         }.resume()

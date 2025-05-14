@@ -31,6 +31,19 @@ struct EquipmentView: View {
                     }
                 }
             }
+        
+        NavigationLink(destination: AddEquipmentView(equipmentRespository: repository)) {
+            HStack {
+                Image(systemName: "plus.circle.fill")
+                Text("Criar novo equipamento")
+                    .fontWeight(.semibold)
+            }
+            .padding()
+            .background(.oomLogoBlue)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+            .padding(.top)
+        }
 
     }
 
