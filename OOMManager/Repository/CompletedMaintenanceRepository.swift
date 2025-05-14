@@ -6,6 +6,7 @@
 //
 
 import SwiftData
+import Foundation
 
 class CompletedMaintenanceRepository {
     private let apiService: APIService
@@ -54,6 +55,53 @@ class CompletedMaintenanceRepository {
         }
     }
     
-    func postCompletedMaintenance(dto: CompletedMaintenanceActivityDTO, dtoTasks: [CompletedTaskActivityDTO], completion: @escaping (Error?) -> Void) {}
+    func postCompletedMaintenance(
+        dto: CompletedMaintenanceActivityDTO,
+        taskInputs: [TaskInput],
+        completion: @escaping (Bool, Error?) -> Void
+    ) {
+        apiService.postData(to: "https://oomdata.arditi.pt/oom/completedMaintenances", body: dto) { (response: CompletedMaintenancesRemote?, error) in
+            if let error = error {
+                completion(false, error)
+                return
+            }
+
+            guard let completedMaintenanceId = response?.idCompletedMaintenance else {
+                completion(false, NSError(domain: "MissingID", code: 0, userInfo: [NSLocalizedDescriptionKey: "Missing maintenance ID"]))
+                return
+            }
+
+            let taskDTOs = taskInputs
+                .map {
+                    CompletedTaskActivityDTO(
+                        sucess: $0.isChecked ? 1 :  0,
+                        observations: $0.observation,
+                        idTask: $0.task.idTask,
+                        idCompletedMaintenance: completedMaintenanceId,
+                    )
+                }
+
+            let group = DispatchGroup()
+            var finalError: Error?
+
+            for dto in taskDTOs {
+                group.enter()
+                self.completedTaskRepository.postCompletedTask(dto: dto) { success, error in
+                    if let error = error {
+                        finalError = error
+                    }
+                    group.leave()
+                }
+            }
+
+            group.notify(queue: .main) {
+                if let error = finalError {
+                    completion(false, error)
+                } else {
+                    completion(true, nil)
+                }
+            }
+        }
+    }
     
 }

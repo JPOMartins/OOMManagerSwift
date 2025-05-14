@@ -11,6 +11,7 @@ import SwiftData
 
 struct InitMaintenance : View {
     @Environment(\.modelContext) private var context
+    @EnvironmentObject var authManager: AuthManager
 
     @Query private var tasks: [TaskModel]
     
@@ -44,12 +45,17 @@ struct InitMaintenance : View {
                     let dateFormatter = ISO8601DateFormatter()
                     let nowString = dateFormatter.string(from: Date())
 
-                    let newMaintenanceActivity = CompletedMaintenanceActivityModel(
-                        startedDate: nowString,
-                        maintenanceID: selectedMaintenance.idMaintenance
-                    )
+                    if let user = authManager.currentUser {
+                        let newMaintenanceActivity = CompletedMaintenanceActivityModel(
+                            startedDate: nowString,
+                            maintenanceID: selectedMaintenance.idMaintenance,
+                            userID: user.idUser
+                        )
+                        context.insert(newMaintenanceActivity)
+                    }else {
+                        print("No maintenances")
+                    }
 
-                    context.insert(newMaintenanceActivity)
 
                 }
                 .buttonStyle(.borderedProminent)

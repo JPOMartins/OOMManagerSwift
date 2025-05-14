@@ -9,11 +9,14 @@ import SwiftUI
 import SwiftData
 
 struct MaintenanceActivityView: View {
+    @Environment(\.modelContext) private var context
     
     let maintenanceActivity : CompletedMaintenanceActivityModel
     @Query private var maintenaces: [MaintenancesModel]
     @Query private var equipments : [EquipmentModel]
     @Query private var tasks : [TaskModel]
+    
+    let completedMaintenanceRepository : CompletedMaintenanceRepository
     
     
     @State private var observation : String = ""
@@ -30,11 +33,42 @@ struct MaintenanceActivityView: View {
         tasks.filter { $0.idMaintenances == maintenanceActivity.maintenanceID }
     }
     
+    private func sendMaintenanceAndTasks(
+        context: ModelContext,
+        taskInputs: [TaskInput],
+        observation: String,
+        completion: @escaping (Bool, String) -> Void
+    ) {
+        let completedDTO = CompletedMaintenanceActivityDTO(
+            startedDate: maintenanceActivity.startedDate,
+            CompletedDate: ISO8601DateFormatter().string(from: Date()),
+            observation: observation,
+            maintenance_id: maintenanceActivity.maintenanceID,
+            user_id: maintenanceActivity.userID!
+        )
+
+    
+        completedMaintenanceRepository.postCompletedMaintenance(
+            dto: completedDTO,
+            taskInputs: taskInputs
+        ) { success, error in
+            if let error = error {
+                completion(false, "Erro ao enviar: \(error.localizedDescription)")
+            } else {
+                context.delete(maintenanceActivity)
+                completion(true, "Manutenção e tarefas enviadas com sucesso!")
+            }
+        }
+    }
+
+
+    
     
     var body: some View {
         ScrollView {
             VStack {
                 MaintenanceActivityBodyScreen(
+                    onSubmit: sendMaintenanceAndTasks,
                     maintenance: maintenance,
                     equipment: equipment,
                     completedMaintenanceActivity: maintenanceActivity,
@@ -50,6 +84,8 @@ struct MaintenanceActivityView: View {
 struct MaintenanceActivityBodyScreen : View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    
+    var onSubmit: (_ context: ModelContext, _ taskInputs: [TaskInput], _ observation: String, _ completion: @escaping (Bool, String) -> Void) -> Void
     
     let maintenance : MaintenancesModel?
     let equipment : EquipmentModel?
@@ -128,7 +164,13 @@ struct MaintenanceActivityBodyScreen : View {
 
                 Spacer()
                 Button("Enviar manutenção") {
-                    //TODO()
+                    onSubmit(modelContext, taskInputs, observation) { success, message in
+                        alertMessage = message
+                        showAlert = true
+                        if success {
+                            dismiss()
+                        }
+                    }
                 }
                 .alert(isPresented: $showAlert) {
                     Alert(title: Text("Resultado"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
@@ -228,7 +270,7 @@ struct TaskInput: Identifiable {
 
 #Preview {
     MaintenanceActivityBodyScreen(
-        maintenance: MaintenancesModel(
+        onSubmit: {_,_,_,_ in}, maintenance: MaintenancesModel(
             idMaintenance: 101,
             title: "Verificação dos Filtros de Ar",
             idEquipment: 12,

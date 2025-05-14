@@ -13,13 +13,15 @@ struct HomeView: View {
     @Query private var completedMaintenanceActivityModel : [CompletedMaintenanceActivityModel]
     @Query private var logActivityModel : [LogActivityModel]
     let logRepository : LogRepository
+    let completedMaintenanceRepository: CompletedMaintenanceRepository
 
     var body: some View {
         NavigationStack {
             HomeScreen(
                 completedMaintenacesActivityModel: completedMaintenanceActivityModel,
                 logActivityModel: logActivityModel,
-                logRepository : logRepository
+                logRepository : logRepository,
+                completedMaintenaceRepository: completedMaintenanceRepository
             )
             .navigationTitle("Atividades em Andamento")
         }
@@ -30,6 +32,7 @@ struct HomeScreen: View {
     let completedMaintenacesActivityModel: [CompletedMaintenanceActivityModel]
     let logActivityModel: [LogActivityModel]
     let logRepository: LogRepository
+    let completedMaintenaceRepository : CompletedMaintenanceRepository
 
     var body: some View {
         VStack {
@@ -52,7 +55,7 @@ struct HomeScreen: View {
                 }
                 ) {
                     ForEach(completedMaintenacesActivityModel) { maintenance in
-                        MaintenanceCard(maintenance: maintenance)
+                        MaintenanceCard(maintenance: maintenance, completedMaintenanceRepository: completedMaintenaceRepository)
                     }
                 }
                 
@@ -154,6 +157,8 @@ struct MaintenanceCard : View {
     @Query private var equipments: [EquipmentModel]
     @Query private var maintenances: [MaintenancesModel]
     
+    let completedMaintenanceRepository: CompletedMaintenanceRepository
+    
     
     var maintenanceModel: MaintenancesModel? {
         maintenances.first {$0.idMaintenance == maintenance.maintenanceID}
@@ -165,7 +170,7 @@ struct MaintenanceCard : View {
     }
     
     var body: some View {
-        NavigationLink(destination: MaintenanceActivityView(maintenanceActivity: maintenance)) {
+        NavigationLink(destination: MaintenanceActivityView(maintenanceActivity: maintenance, completedMaintenanceRepository: completedMaintenanceRepository)) {
             VStack {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {

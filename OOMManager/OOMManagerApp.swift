@@ -52,9 +52,9 @@ struct OOMManagerApp: App {
         let context = sharedModelContainer.mainContext
         self.equipmentRepository = EquipmentRepository(apiService: apiService, context: context)
         self.logRepository = LogRepository(apiService: apiService, context: context)
-        self.completedMaintenanceRepository = CompletedMaintenanceRepository(apiService: apiService, context: context)
-        self.maintenanceRepository = MaintenanceRepository(apiService: apiService, context: context)
         self.completedTaskRepository = CompletedTaskRepository(apiService: apiService, context: context)
+        self.completedMaintenanceRepository = CompletedMaintenanceRepository(apiService: apiService, context: context, completedTaskRepository: completedTaskRepository)
+        self.maintenanceRepository = MaintenanceRepository(apiService: apiService, context: context)
         self.taskRepository = TaskRepository(apiService: apiService, context: context)
         self.userRepository = UserRepository(apiService: apiService, context: context)
         

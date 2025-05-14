@@ -96,7 +96,7 @@ struct MainSidebarView: View {
         } detail: {
             switch selectedItem {
             case .Home:
-                HomeView(logRepository: logRepository)
+                HomeView(logRepository: logRepository, completedMaintenanceRepository: completedMaintenaceRepository)
             case .equipment:
                 EquipmentView(repository: equipmentRepository)
             case .logs:
