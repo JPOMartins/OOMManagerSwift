@@ -65,5 +65,72 @@ class EquipmentRepository {
             }
         }
     }
+    
+    func postEquipment(
+        name: String,
+        brand: String,
+        model: String,
+        serialNumber: String,
+        libraryNumber: String,
+        observations: String,
+        photo: UIImage?,
+        completion: @escaping (Bool, Error?) -> Void
+    ) {
+        guard let token = AuthManager.shared.getToken() else {
+            completion(false, NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "Não autenticado"]))
+            return
+        }
+
+        let boundary = UUID().uuidString
+        var request = URLRequest(url: URL(string: "https://oomdata.arditi.pt/oom/equipment")!)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+        var data = Data()
+
+        func addField(name: String, value: String) {
+            data.append("--\(boundary)\r\n".data(using: .utf8)!)
+            data.append("Content-Disposition: form-data; name=\"\(name)\"\r\n\r\n".data(using: .utf8)!)
+            data.append("\(value)\r\n".data(using: .utf8)!)
+        }
+
+        addField(name: "name", value: name)
+        addField(name: "brand", value: brand)
+        addField(name: "model", value: model)
+        addField(name: "serieNumber", value: serialNumber)
+        addField(name: "id", value: libraryNumber)
+        addField(name: "observations", value: observations)
+
+        if let photo = photo, let imageData = photo.jpegData(compressionQuality: 0.8) {
+            data.append("--\(boundary)\r\n".data(using: .utf8)!)
+            data.append("Content-Disposition: form-data; name=\"photo\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
+            data.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+            data.append(imageData)
+            data.append("\r\n".data(using: .utf8)!)
+        }
+
+        data.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = data
+
+        URLSession.shared.dataTask(with: request) { _, response, error in
+            if let error = error {
+                completion(false, error)
+                return
+            }
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                completion(false, NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No response"]))
+                return
+            }
+
+            if (200...299).contains(httpResponse.statusCode) {
+                completion(true, nil)
+            } else {
+                completion(false, NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "API error \(httpResponse.statusCode)"]))
+            }
+        }.resume()
+    }
+
 }
 
