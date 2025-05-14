@@ -10,10 +10,12 @@ import SwiftData
 class CompletedMaintenanceRepository {
     private let apiService: APIService
     private let modelContext: ModelContext
+    private let completedTaskRepository: CompletedTaskRepository
 
-    init(apiService: APIService, context: ModelContext) {
+    init(apiService: APIService, context: ModelContext, completedTaskRepository: CompletedTaskRepository) {
         self.apiService = apiService
         self.modelContext = context
+        self.completedTaskRepository = completedTaskRepository
     }
     
     func fetchAndStoreCompletedMaintenance (completion: @escaping (Error?) -> Void) {
@@ -52,5 +54,6 @@ class CompletedMaintenanceRepository {
         }
     }
     
+    func postCompletedMaintenance(dto: CompletedMaintenanceActivityDTO, dtoTasks: [CompletedTaskActivityDTO], completion: @escaping (Error?) -> Void) {}
     
 }
