@@ -30,7 +30,6 @@ struct MainSidebarView: View {
     @State private var columnVisibility: NavigationSplitViewVisibility = .automatic
     @State private var errorMessage: String?
 
-
     @State private var selectedItem: SidebarItem? = .Home
     @State private var currentUserLogged: UserModel?
     
@@ -89,6 +88,15 @@ struct MainSidebarView: View {
                 Section(header: Text("Dados")) {
                     NavigationLink(value: SidebarItem.consult) {
                         Label("Consulta", systemImage: "book.pages")
+                    }
+                }
+                
+                Section(header: Text("Logout")) {
+                    Button {
+                        authManager.logout()
+                    } label: {
+                        Label("Terminar Sessão", systemImage: "rectangle.portrait.and.arrow.right")
+                            .foregroundColor(.red)
                     }
                 }
             }

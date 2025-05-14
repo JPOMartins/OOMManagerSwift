@@ -26,6 +26,12 @@ class AuthManager: ObservableObject {
     func setCurrentUser(_ user: UserModel) {
         self.currentUser = user
     }
+    
+    func logout() {
+        isAuthenticated = false
+        currentUser = nil
+        authToken = ""
+    }
 
     func loginUser(username: String, password: String, completion: @escaping (Error?) -> Void) {
         guard let url = URL(string: "https://oomdata.arditi.pt/oom/user/login") else {
