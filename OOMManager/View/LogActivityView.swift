@@ -132,6 +132,7 @@ struct LogActivityView: View {
                 Spacer()
             }
             .padding()
+            .navigationTitle("Log ativa")
         }
     }
 }

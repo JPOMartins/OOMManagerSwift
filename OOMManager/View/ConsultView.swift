@@ -9,6 +9,7 @@ import SwiftData
 
 struct ConsultView : View {
     let taskRepository: TaskRepository
+    let maintenanceRepository: MaintenanceRepository
     @State private var errorMessage : String?
     
     @Query private var equipments: [EquipmentModel]
@@ -20,6 +21,10 @@ struct ConsultView : View {
         
     @State private var filteredMaintenances : [MaintenancesModel] = []
     @State private var filteredTasks : [TaskModel] = []
+    
+    @State private var showAddTaskSheet = false
+    @State private var newTaskTitle = ""
+    @State private var newTaskDescription = ""
     
     var body: some View {
         VStack {
@@ -35,7 +40,73 @@ struct ConsultView : View {
             }
             TaskList(taskList: filteredTasks)
             Spacer()
+            
+            Button("Adicionar tarefa") {
+                showAddTaskSheet = true
+            }
+            .sheet(isPresented: $showAddTaskSheet) {
+                VStack(alignment: .leading) {
+                    Text("Nova Tarefa")
+                        .font(.headline)
+                    
+                    TextField("Título", text: $newTaskTitle)
+                        .textFieldStyle(.roundedBorder)
+                        .padding(.vertical)
+                    
+                    TextField("Descrição", text: $newTaskDescription)
+                        .textFieldStyle(.roundedBorder)
+                        .padding(.bottom)
+                    
+                    Button("Guardar") {
+                        guard let maintenance = selectedMaintenance else {
+                            errorMessage = "Selecione uma manutenção primeiro."
+                            return
+                        }
+                        
+                        let dto = TaskDTO(
+                            title: newTaskTitle,
+                            description: newTaskDescription,
+                            Maintenances_idMaintenance: maintenance.idMaintenance
+                        )
+                        
+                        taskRepository.postTask(dto: dto) { success, error in
+                            if let error = error {
+                                self.errorMessage = error.localizedDescription
+                            } else {
+                                self.newTaskTitle = ""
+                                self.newTaskDescription = ""
+                                self.showAddTaskSheet = false
+                            }
+                        }
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(.oomLogoBlue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                    
+                    Spacer()
+                }
+                .padding()
+            }
+            
+            NavigationLink(destination: AddMaintenancesView(maintenaceRepository: maintenanceRepository)) {
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                    Text("Criar novo manutenção")
+                        .fontWeight(.semibold)
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(.oomLogoBlue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+                .padding(.top)
+            }
+            
+            
         }
+        .padding()
         .onChange(of: selectedEquipment) { oldValue , newValue in
             filteredMaintenances = maintenances.filter { $0.idEquipment == newValue?.idEquipment}
         }

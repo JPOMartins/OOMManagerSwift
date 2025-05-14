@@ -104,7 +104,7 @@ struct MainSidebarView: View {
             case .completedMaintenace:
                 CompletedMaintenancesView(repository: completedMaintenaceRepository, repositoryMaintenance: maintenanceRepository, equipmentRepository: equipmentRepository, completedTaskRepository: completedTaskRepository)
             case .consult:
-                ConsultView(taskRepository: taskRepository)
+                ConsultView(taskRepository: taskRepository, maintenanceRepository: maintenanceRepository)
                 
             case .none:
                 Text("Select a section")

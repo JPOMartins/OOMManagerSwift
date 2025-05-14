@@ -48,6 +48,16 @@ class TaskRepository {
             }
         }
     }
+    
+    func postTask(dto: TaskDTO,completion: @escaping (Bool, Error?) -> Void) {
+        apiService.postData(to: "https://oomdata.arditi.pt/oom/task", body: dto) { (response: TaskModelRemote?, error) in
+            if let error = error {
+                completion(false, error)
+                return
+            }
+            completion(true, nil)
+        }
+    }
 }
 
 

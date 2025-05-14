@@ -47,4 +47,16 @@ class MaintenanceRepository {
             }
         }
     }
+    
+    func postMaintenance(dto: MaintenanceDTO,completion: @escaping (Bool, Error?) -> Void) {
+        apiService.postData(to: "https://oomdata.arditi.pt/oom/maintenances", body: dto) { (response: MaintenancesModelRemote?, error) in
+            if let error = error {
+                completion(false, error)
+                return
+            }
+            completion(true, nil)
+        }
+    }
+    
+    
 }
