@@ -8,29 +8,50 @@
 import SwiftUI
 import SwiftData
 
-struct AddMaintenancesView : View {
+struct AddMaintenancesView: View {
     @Environment(\.dismiss) private var dismiss
     let maintenaceRepository: MaintenanceRepository
-    
+
+    @State private var showToast = false
+    @State private var toastMessage = ""
+    @State private var isError = false
+
     private func addMaintenance(dto: MaintenanceDTO) {
-        maintenaceRepository.postMaintenance(dto: dto) { sucess, error in
-            if let error = error {
-                print("Erro ao adicionar manutenção: \(error)")
-                return
+        maintenaceRepository.postMaintenance(dto: dto) { success, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    toastMessage = "Erro: \(error.localizedDescription)"
+                    isError = true
+                    showToast = true
+                    return
+                }
+                toastMessage = "Manutenção adicionada com sucesso!"
+                isError = false
+                showToast = true
+                
+                // Optional: dismiss after delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    dismiss()
+                }
             }
-            dismiss()
         }
     }
-    
-    var body : some View {
-        VStack {
-            AddMaintenancesBody(addMaintenance: addMaintenance)
+
+    var body: some View {
+        ZStack {
+            VStack {
+                AddMaintenancesBody(addMaintenance: addMaintenance)
+            }
+            .padding()
+            .navigationTitle("Adicionar manutenção")
+            
+            if showToast {
+                Toast(toastMessage: $toastMessage, showToast: $showToast, isError: $isError)
+            }
         }
-        .padding()
-        .navigationTitle("Adicionar manutenção")
-        
     }
 }
+
 
 struct AddMaintenancesBody : View {
     @Query private var equipments : [EquipmentModel]

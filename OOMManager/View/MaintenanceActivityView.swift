@@ -10,6 +10,7 @@ import SwiftData
 
 struct MaintenanceActivityView: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
     
     let maintenanceActivity : CompletedMaintenanceActivityModel
     @Query private var maintenaces: [MaintenancesModel]
@@ -17,6 +18,10 @@ struct MaintenanceActivityView: View {
     @Query private var tasks : [TaskModel]
     
     let completedMaintenanceRepository : CompletedMaintenanceRepository
+    
+    @State private var showToast = false
+    @State private var toastMessage = ""
+    @State private var isError = false
     
     
     @State private var observation : String = ""
@@ -53,11 +58,18 @@ struct MaintenanceActivityView: View {
             taskInputs: taskInputs
         ) { success, error in
             if let error = error {
+                self.toastMessage = "Erro : \(error.localizedDescription)"
+                self.isError = true
                 completion(false, "Erro ao enviar: \(error.localizedDescription)")
             } else {
+                self.toastMessage = "Manutenção e tarefas enviadas com sucesso!"
+                self.isError = false
                 context.delete(maintenanceActivity)
                 completion(true, "Manutenção e tarefas enviadas com sucesso!")
             }
+            self.showToast = true
+            
+    
         }
     }
 
@@ -65,18 +77,23 @@ struct MaintenanceActivityView: View {
     
     
     var body: some View {
-        ScrollView {
-            VStack {
-                MaintenanceActivityBodyScreen(
-                    onSubmit: sendMaintenanceAndTasks,
-                    maintenance: maintenance,
-                    equipment: equipment,
-                    completedMaintenanceActivity: maintenanceActivity,
-                    tasks: tasks
-                )
+        ZStack {
+            ScrollView {
+                VStack {
+                    MaintenanceActivityBodyScreen(
+                        onSubmit: sendMaintenanceAndTasks,
+                        maintenance: maintenance,
+                        equipment: equipment,
+                        completedMaintenanceActivity: maintenanceActivity,
+                        tasks: tasks
+                    )
+                }
+                .navigationTitle(Text("Active maintenance"))
+                .padding()
             }
-            .navigationTitle(Text("Active maintenance"))
-            .padding()
+            if(showToast) {
+                Toast(toastMessage: $toastMessage, showToast: $showToast, isError: $isError)
+            }
         }
     }
 }
@@ -165,10 +182,13 @@ struct MaintenanceActivityBodyScreen : View {
                 Spacer()
                 Button("Enviar manutenção") {
                     onSubmit(modelContext, taskInputs, observation) { success, message in
-                        alertMessage = message
-                        showAlert = true
                         if success {
-                            dismiss()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                withAnimation {
+                                    modelContext.delete(completedMaintenanceActivity)
+                                    dismiss()
+                                }
+                            }
                         }
                     }
                 }
