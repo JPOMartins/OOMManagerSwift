@@ -114,13 +114,18 @@ struct LogActivityView: View {
                                 if success {
                                     self.toastMessage = "Log enviada com sucesso"
                                     self.isError = false
-                                    dismiss()
-                                    modelContext.delete(logActivity)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                        withAnimation {
+                                            modelContext.delete(logActivity)
+                                            dismiss()
+                                        }
+                                    }
                                 } else {
                                     self.toastMessage = "Erro ao enviar log"
                                     self.isError = true
                                 }
                             }
+                            self.showToast = true
                         }
                         
                     }
