@@ -15,6 +15,10 @@ class CompletedMaintenanceActivityModel {
     var maintenanceID: Int
     var userID: Int?
 
+    // Associação 1:N com tarefas concluídas
+    @Relationship(deleteRule: .cascade, inverse: \CompletedTaskActivityModel.maintenanceActivity)
+    var tasks: [CompletedTaskActivityModel] = []
+
     init(
         idCompletedMaintenanceActivity: Int = 0,
         startedDate: String,
@@ -31,3 +35,4 @@ class CompletedMaintenanceActivityModel {
         self.userID = userID
     }
 }
+

@@ -11,6 +11,7 @@ import SwiftData
 struct InitLog: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject var authManager: AuthManager
+    @Environment(\.dismiss) private var dismiss
     
     @State private var title = ""
     @Query private var equipments: [EquipmentModel]
@@ -30,7 +31,7 @@ struct InitLog: View {
             
             HStack {
                 Spacer()
-                Button("Init Log") {
+                Button("Iniciar log") {
                     guard let selectedEquipment = selectedEquipment else { return }
 
                     let dateFormatter = ISO8601DateFormatter()
@@ -44,6 +45,7 @@ struct InitLog: View {
                             userID: user.idUser
                         )
                         modelContext.insert(newActivityLog)
+                        dismiss()
                     } else {
                         print("No user")
                     }

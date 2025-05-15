@@ -9,5 +9,5 @@ struct CompletedTaskActivityDTO : Codable {
     var sucess: Int
     var observations: String
     var idTask: Int
-    var idCompletedMaintenance: Int
+    var idCompletedMaintenance: Int?
 }

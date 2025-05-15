@@ -57,7 +57,7 @@ class CompletedMaintenanceRepository {
     
     func postCompletedMaintenance(
         dto: CompletedMaintenanceActivityDTO,
-        taskInputs: [TaskInput],
+        taskInputs: [CompletedTaskActivityDTO],
         completion: @escaping (Bool, Error?) -> Void
     ) {
         apiService.postData(to: "https://oomdata.arditi.pt/oom/completedMaintenances", body: dto) { (response: CompletedMaintenancesRemote?, error) in
@@ -74,9 +74,9 @@ class CompletedMaintenanceRepository {
             let taskDTOs = taskInputs
                 .map {
                     CompletedTaskActivityDTO(
-                        sucess: $0.isChecked ? 1 :  0,
-                        observations: $0.observation,
-                        idTask: $0.task.idTask,
+                        sucess: $0.sucess,
+                        observations: $0.observations,
+                        idTask: $0.idTask,
                         idCompletedMaintenance: completedMaintenanceId,
                     )
                 }

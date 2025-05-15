@@ -12,6 +12,7 @@ import SwiftData
 struct InitMaintenance : View {
     @Environment(\.modelContext) private var context
     @EnvironmentObject var authManager: AuthManager
+    @Environment(\.dismiss) private var dismiss
 
     @Query private var tasks: [TaskModel]
     
@@ -39,7 +40,7 @@ struct InitMaintenance : View {
             
             HStack {
                 Spacer()
-                Button("Init maintenance") {
+                Button("Iniciar manutenção") {
                     guard let selectedMaintenance = selectedMaintenance else { return }
 
                     let dateFormatter = ISO8601DateFormatter()
@@ -51,7 +52,16 @@ struct InitMaintenance : View {
                             maintenanceID: selectedMaintenance.idMaintenance,
                             userID: user.idUser
                         )
+                        
+                        for task in filteredTasks {
+                            let completedTask = CompletedTaskActivityModel(idTask: task.idTask, maintenanceID: task.idMaintenances)
+                            completedTask.maintenanceActivity = newMaintenanceActivity // Associação aqui
+                            newMaintenanceActivity.tasks.append(completedTask) // Opcional, dependendo da direção do relacionamento
+                            context.insert(completedTask)
+                        }
+                        
                         context.insert(newMaintenanceActivity)
+                        dismiss()
                     }else {
                         print("No maintenances")
                     }

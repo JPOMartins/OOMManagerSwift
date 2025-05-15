@@ -18,7 +18,7 @@ struct LogActivityView: View {
 
     let logRepository : LogRepository
     
-    let logActivity : LogActivityModel
+    @Bindable var logActivity: LogActivityModel
     
     @Query private var equipments : [EquipmentModel]
     
@@ -55,14 +55,17 @@ struct LogActivityView: View {
                         .padding(.bottom)
                         
                         HStack {
-                            Text("Observation: ")
+                            Text("Observação: ")
                                 .foregroundColor(.oomLogoBlue)
                                 .bold(true)
                                 .font(.title3)
                             Spacer()
                         }
                         
-                        TextEditor(text: $observation)
+                        TextEditor(text: Binding(
+                            get: { logActivity.observations ?? "" },
+                            set: { logActivity.observations = $0 }
+                        ))
                             .frame(height: 260)
                             .padding(8)
                             .cornerRadius(8)
@@ -73,7 +76,7 @@ struct LogActivityView: View {
                         
                         HStack {
                             Button("Adicionar hora ao texto") {
-                                observation += "\n\(DateFormatter.logTimeFormatter.string(from: Date())) "
+                                logActivity.observations! += "\n\(DateFormatter.logTimeFormatter.string(from: Date())) "
                             }
                             .fontWeight(.semibold)
                             .foregroundColor(.oomLogoBlue)
