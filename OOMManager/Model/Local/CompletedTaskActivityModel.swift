@@ -13,7 +13,6 @@ class CompletedTaskActivityModel {
     var observation: String = ""
     var maintenanceID: Int
 
-    // Referência reversa
     @Relationship
     var maintenanceActivity: CompletedMaintenanceActivityModel?
 
